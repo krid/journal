@@ -1,0 +1,10 @@
+# Simple ini file format.
+# Lines beginning with # are skipped.
+# Everything before the "=" is the key, everything after is the value.
+# Keys are only used if there is a corresponding variable in setting.py.
+# Sanity checking is otherwise absent, so don't be stupid.
+DATABASE_NAME=XXX
+DATABASE_USER=XXX
+DATABASE_PASSWORD=XXX
+DATABASE_HOST=XXX
+SECRET_KEY=YYY
