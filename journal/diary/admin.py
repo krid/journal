@@ -12,6 +12,10 @@ from django.contrib import admin
 from journal.diary.models import BikeRide, SocialEvent, DiningOut, Entry, \
     Person, Video, Book, Music, Activity, Media
 
+class ConsumableInline(admin.TabularInline):
+    model = Entry.consumables.through
+    extra = 1
+
 
 class MediaInline(admin.TabularInline):
     model = Entry.media.through
@@ -20,19 +24,19 @@ class MediaInline(admin.TabularInline):
 
 class BikeRideInline(admin.TabularInline):
     model = BikeRide
-    fields = ('summary', 'reality', 'distance', 'average_speed', 'climbing', 'solo')
+    #fields = ('summary', 'reality', 'distance', 'average_speed', 'climbing', 'solo')
     extra = 1
 
 
 class SocialEventInline(admin.TabularInline):
     model = SocialEvent
-    fields = ('summary', 'reality', 'private',)
+    #fields = ('summary', 'reality', 'private',)
     extra = 1
 
 
 class DiningOutInline(admin.TabularInline):
     model = DiningOut
-    fields = ('summary', 'reality', 'restaurant',)
+    #fields = ('summary', 'reality', 'restaurant',)
     extra = 1
 
 
@@ -43,17 +47,20 @@ class ActivityInline(admin.TabularInline):
 
 class EntryAdmin(admin.ModelAdmin):
     save_on_top = True
-    list_display = ('created', 'summary', 'mood', 'user', 'modified')
+    fields = ('date', 'summary', 'notes', 'mood', 'user')
+    list_display = ('date', 'summary', 'mood', 'user', 'modified')
     list_editable = ('summary', 'mood')
+    list_display_links = ('date',)
     exclude = ('media',)
-    date_hierarchy = 'created'
+    date_hierarchy = 'date'
     search_fields = ('summary',)
     list_filter = ('mood',)
     inlines = [ActivityInline,
                BikeRideInline,
                SocialEventInline,
                DiningOutInline,
-               MediaInline, ]
+               MediaInline,
+               ConsumableInline, ]
 admin.site.register(Entry, EntryAdmin)
 
 

@@ -1,0 +1,20 @@
+2010-09-14  Dirk Bergstrom  <krid@otisbean.com>
+
+This commit brings the app to the bare minimum for usability.
+
+	* diary/models.py (Entry): Add date field, and order by it.  Add
+	relation to Consumables.
+	(Consumable): New model for yummy stuff.
+	(DiningOut): Add where field and relation to Consumables.
+    (*): Proper use of blank and null attrs in model fields.	
+ 
+	* diary/admin.py (EntryAdmin): Use date instead of created, add
+	inline for Consumables.
+	(*Inline): Comment out fields attr, to see if that makes working in the
+	Django admin easier.
+	
+	* apache/app.wsgi: Entry point for mod_wsgi.
+	
+ 	* settings.py: Use DEVELOPMENT environment variable to control various
+	settings.
+	

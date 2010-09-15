@@ -33,6 +33,7 @@ class Rateable(models.Model):
     )
 
     expectation = models.SmallIntegerField(choices=EXPECTATIONS_VS_REALITY,
+                                           blank=True,
                                            null=True)
     reality = models.SmallIntegerField(choices=EXPECTATIONS_VS_REALITY)
 
@@ -44,17 +45,16 @@ class SummaryAndNotes(models.Model):
         abstract = True
 
     summary = models.CharField(max_length=100,
-                               null=False,
                                blank=False)
-    notes = models.TextField(null=True)
+    notes = models.TextField(blank=True)
 
 
 class Entry(SummaryAndNotes, Timestamped):
     """ Basic diary entry. """
 
     class Meta:
-        ordering = ["created"]
-        get_latest_by = "created"
+        ordering = ["-date"]
+        get_latest_by = "date"
         verbose_name_plural = "Entries"
 
     def __str__(self):
@@ -75,14 +75,18 @@ class Entry(SummaryAndNotes, Timestamped):
        ('sick', 'Sick'),
     )
 
+    date = models.DateField(blank=False,
+                            db_index=True)
+
     mood = models.CharField(max_length=20,
-                            null=False,
                             blank=False,
                             choices=MOODS)
 
-    user = models.ForeignKey(User, null=False)
+    user = models.ForeignKey(User)
 
     media = models.ManyToManyField('Media')
+
+    consumables = models.ManyToManyField('Consumable')
 
 
 class Person(SummaryAndNotes, Timestamped):
@@ -137,11 +141,12 @@ class Activity(Rateable, SummaryAndNotes, Timestamped):
 
     entry = models.ForeignKey(Entry)
 
-    duration = models.PositiveIntegerField("duration in hours", null=True)
+    duration = models.PositiveIntegerField("duration in hours",
+                                           blank=True, null=True)
 
     private = models.BooleanField()
 
-    activity_type = models.CharField(max_length=10, choices=ACTIVITY_TYPES)
+    activity_type = models.CharField(max_length=15, choices=ACTIVITY_TYPES)
 
     def save(self, *args, **kwargs):
         self.activity_type = self.__class__.__name__
@@ -180,16 +185,49 @@ class DiningOut(Activity):
 
     restaurant = models.CharField(max_length=100)
 
-    link = models.URLField()
+    where = models.CharField(max_length=200,
+                             blank=True)
+
+    link = models.URLField(blank=True)
 
     company = models.ManyToManyField(Person)
 
+    consumables = models.ManyToManyField('Consumable')
 
-class Media(Rateable, SummaryAndNotes, Timestamped):
+
+class Consumable(SummaryAndNotes, Rateable, Timestamped):
+    """ Liquor, beer, wine, chocolate and other yummy foodstuffs. """
+
+    CONSUMABLE_TYPES = (('Liquor', 'Liquor'),
+                        ('Wine', 'Wine'),
+                        ('Beer', 'Beer'),
+                        ('Drugs', 'Drugs'),
+                        ('Chocolate', 'Chocolate'),
+                        ('Candy', 'Candy'),
+                        ('Food', 'Food'),
+                        )
+
+    name = models.CharField(max_length=100)
+
+    where = models.CharField(max_length=200, blank=True)
+
+    link = models.URLField(blank=True)
+
+    referred_by = models.ForeignKey(Person, blank=True)
+
+    consumable_type = models.CharField(max_length=10, choices=CONSUMABLE_TYPES)
+
+
+class Media(SummaryAndNotes, Rateable, Timestamped):
     """ Media purchased or consumed.
     
     TODO: Consider having a many-to-many with Entry via a "through" that
     captures the relation -- purchased, consumed, started, finished, etc.
+    Could use the same model (or a clone) to handle Consumables.  This
+    would require some snazzy UI to make it easy to do the association -- or
+    maybe the admin UI handles this already?  Hmm, it also gets messy if you
+    want to both 'purchase' and 'consume' something at the same time.  Maybe
+    this is over-thinking it...
     """
 
     MEDIA_TYPES = (('Book', 'Book'),
@@ -199,7 +237,6 @@ class Media(Rateable, SummaryAndNotes, Timestamped):
                    )
 
     class Meta:
-        #abstract = True
         ordering = ["created"]
         get_latest_by = "created"
         verbose_name_plural = 'media'
@@ -212,15 +249,15 @@ class Media(Rateable, SummaryAndNotes, Timestamped):
                                                   year=self.year)
 
     title = models.CharField(max_length=100,
-                             null=False,
                              blank=False)
 
-    link = models.URLField(null=True)
+    link = models.URLField(blank=True)
 
-    year = models.IntegerField(null=True,
+    year = models.IntegerField(blank=True,
                                help_text="Year of publication/release.")
 
-    referred_by = models.ForeignKey(Person, null=True)
+    referred_by = models.ForeignKey(Person,
+                                    blank=True, null=True)
 
     media_type = models.CharField(max_length=10, choices=MEDIA_TYPES)
 
@@ -253,12 +290,10 @@ class Book(Media):
         verbose_name = "book"
 
     author = models.CharField(max_length=100,
-                              null=False,
                               blank=False)
 
     book_type = models.CharField(max_length=20,
                                  choices=BOOK_TYPES,
-                                 null=False,
                                  blank=False)
 
     genre = models.CharField(max_length=20,
@@ -281,12 +316,10 @@ class Music(Media):
 
 
     artist = models.CharField(max_length=100,
-                              null=False,
                               blank=False)
 
     source = models.CharField(max_length=100,
-                              null=True,
-                              blank=False)
+                              blank=True)
 
     genre = models.CharField(max_length=20,
                              choices=GENRES)
@@ -306,5 +339,4 @@ class Video(Media):
 
     video_type = models.CharField(max_length=20,
                                   choices=VIDEO_TYPES,
-                                  null=False,
                                   blank=False)

@@ -1,10 +1,13 @@
 # Django settings for journal project.
 
-DEBUG = True
+import os
+DEVELOPMENT = os.environ.get('DEVELOPMENT', False)
+if DEVELOPMENT:
+    DEBUG = True
 TEMPLATE_DEBUG = DEBUG
 
 ADMINS = (
-    # ('Your Name', 'your_email@domain.com'),
+    ('Dirk Bergstrom', 'dirk@otisbean.com'),
 )
 
 MANAGERS = ADMINS
@@ -62,6 +65,12 @@ MIDDLEWARE_CLASSES = (
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
 )
+if not DEVELOPMENT:
+    # REMOTE_USER auth doesn't work with the dev server
+    MIDDLEWARE_CLASSES += ('django.contrib.auth.middleware.RemoteUserMiddleware',)
+    AUTHENTICATION_BACKENDS = (
+        'django.contrib.auth.backends.RemoteUserBackend',
+    )
 
 ROOT_URLCONF = 'journal.urls'
 
@@ -83,7 +92,6 @@ INSTALLED_APPS = (
 )
 
 # Read "secret" config data that shouldn't go into source control
-import os
 with open(os.path.join(os.path.dirname(__file__), "config.ini")) as conf:
     for line in conf:
         if line.strip().startswith('#'):
