@@ -1,3 +1,19 @@
+# Journal
+# Copyright (C) 2010, Dirk Bergstrom, dirk@otisbean.com
+#
+# This program is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation, either version 3 of the License, or
+# (at your option) any later version.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with this program.  If not, see <http://www.gnu.org/licenses/>.
+
 from django.db import models
 from django.contrib.auth.models import User
 
@@ -135,10 +151,9 @@ class Activity(Rateable, SummaryAndNotes, Timestamped):
     def __str__(self):
         return str(unicode(self))
     def __unicode__(self):
-        return '{type}: {summary} - {created}'.format(type=self.activity_type,
-                                                      summary=self.summary,
-                                                      created=self.created.strftime('%Y-%m-%d'))
-
+        return '{type}: {summary} - {date}'.format(type=self.activity_type,
+                                                   summary=self.summary,
+                                                   date=self.entry.date.strftime('%Y-%m-%d'))
     entry = models.ForeignKey(Entry)
 
     duration = models.PositiveIntegerField("duration in hours",
@@ -207,6 +222,11 @@ class Consumable(SummaryAndNotes, Rateable, Timestamped):
                         ('Food', 'Food'),
                         )
 
+    def __str__(self):
+        return str(unicode(self))
+    def __unicode__(self):
+        return '{type}: "{title}"'.format(type=self.consumable_type,
+                                                  title=self.name)
     name = models.CharField(max_length=100)
 
     where = models.CharField(max_length=200, blank=True)
@@ -340,3 +360,14 @@ class Video(Media):
     video_type = models.CharField(max_length=20,
                                   choices=VIDEO_TYPES,
                                   blank=False)
+
+class MedicalObservation(SummaryAndNotes, Timestamped):
+    """ What's going on with your body or mind. """
+
+    def __str__(self):
+        return str(unicode(self))
+    def __unicode__(self):
+        return '{summary} - {date}'.format(summary=self.summary,
+                                           date=self.entry.date.strftime('%Y-%m-%d'))
+
+    entry = models.ForeignKey(Entry)

@@ -1,3 +1,18 @@
+# Journal
+# Copyright (C) 2010, Dirk Bergstrom, dirk@otisbean.com
+#
+# This program is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation, either version 3 of the License, or
+# (at your option) any later version.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with this program.  If not, see <http://www.gnu.org/licenses/>.
 """
 Admin fu for diary
 
@@ -10,7 +25,7 @@ Dirk Bergstrom, krid@otisbean.com
 from django.contrib import admin
 
 from journal.diary.models import BikeRide, SocialEvent, DiningOut, Entry, \
-    Person, Video, Book, Music, Activity, Media
+    Person, Video, Book, Music, Activity, Media, MedicalObservation, Consumable
 
 class ConsumableInline(admin.TabularInline):
     model = Entry.consumables.through
@@ -45,6 +60,11 @@ class ActivityInline(admin.TabularInline):
     extra = 1
 
 
+class MedicalObservationInline(admin.TabularInline):
+    model = MedicalObservation
+    extra = 1
+
+
 class EntryAdmin(admin.ModelAdmin):
     save_on_top = True
     fields = ('date', 'summary', 'notes', 'mood', 'user')
@@ -60,7 +80,8 @@ class EntryAdmin(admin.ModelAdmin):
                SocialEventInline,
                DiningOutInline,
                MediaInline,
-               ConsumableInline, ]
+               ConsumableInline,
+               MedicalObservationInline, ]
 admin.site.register(Entry, EntryAdmin)
 
 
@@ -97,3 +118,12 @@ admin.site.register(Book, BookAdmin)
 class MusicAdmin(admin.ModelAdmin):
     pass
 admin.site.register(Music, MusicAdmin)
+
+class ConsumableAdmin(admin.ModelAdmin):
+    pass
+admin.site.register(Consumable, ConsumableAdmin)
+
+class MedicalObservationAdmin(admin.ModelAdmin):
+    pass
+admin.site.register(MedicalObservation, MedicalObservationAdmin)
+

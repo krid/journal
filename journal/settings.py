@@ -2,8 +2,8 @@
 
 import os
 DEVELOPMENT = os.environ.get('DEVELOPMENT', False)
-if DEVELOPMENT:
-    DEBUG = True
+
+DEBUG = DEVELOPMENT
 TEMPLATE_DEBUG = DEBUG
 
 ADMINS = (

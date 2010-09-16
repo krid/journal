@@ -1,3 +1,15 @@
+2010-09-16  Dirk Bergstrom  <krid@otisbean.com>
+
+	* settings.py: Fixed a bug in handling of DEVELOPMENT & DEBUG flags.
+
+	* diary/models.py (Consumable): Added __str__ and __unicode__ methods.
+	(MedicalObservation): Model to track health issues.
+	(Activity): Changed __unicode__ to use self.entry.date instead of created.
+
+	* diary/admin.py: Added fu for MedicalObservation & Consumable.
+
+    * (all files): Added copyright and GPLv3 verbiage.
+
 2010-09-14  Dirk Bergstrom  <krid@otisbean.com>
 
 This commit brings the app to the bare minimum for usability.
