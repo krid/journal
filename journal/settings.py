@@ -1,10 +1,12 @@
 # Django settings for journal project.
-
 import os
+
 DEVELOPMENT = os.environ.get('DEVELOPMENT', False)
 
 DEBUG = DEVELOPMENT
 TEMPLATE_DEBUG = DEBUG
+
+APP_BASE_PATH = os.path.dirname(__file__)
 
 ADMINS = (
     ('Dirk Bergstrom', 'dirk@otisbean.com'),
@@ -38,12 +40,12 @@ USE_I18N = True
 
 # Absolute path to the directory that holds media.
 # Example: "/home/media/media.lawrence.com/"
-MEDIA_ROOT = ''
+MEDIA_ROOT = os.path.join(APP_BASE_PATH, 'static')
 
 # URL that handles the media served from MEDIA_ROOT. Make sure to use a
 # trailing slash if there is a path component (optional in other cases).
 # Examples: "http://media.lawrence.com", "http://example.com/media/"
-MEDIA_URL = ''
+MEDIA_URL = '/static/'
 
 # URL prefix for admin media -- CSS, JavaScript and images. Make sure to use a
 # trailing slash.
@@ -55,8 +57,8 @@ SECRET_KEY = ''
 
 # List of callables that know how to import templates from various sources.
 TEMPLATE_LOADERS = (
-    'django.template.loaders.filesystem.load_template_source',
     'django.template.loaders.app_directories.load_template_source',
+    'django.template.loaders.filesystem.load_template_source',
 #     'django.template.loaders.eggs.load_template_source',
 )
 
@@ -92,7 +94,8 @@ INSTALLED_APPS = (
 )
 
 # Read "secret" config data that shouldn't go into source control
-with open(os.path.join(os.path.dirname(__file__), "config.ini")) as conf:
+ini_file = DEVELOPMENT and "dev-config.ini" or "production-config.ini"
+with open(os.path.join(APP_BASE_PATH, ini_file)) as conf:
     for line in conf:
         if line.strip().startswith('#'):
             continue

@@ -25,7 +25,8 @@ Dirk Bergstrom, krid@otisbean.com
 from django.contrib import admin
 
 from journal.diary.models import BikeRide, SocialEvent, DiningOut, Entry, \
-    Person, Video, Book, Music, Activity, Media, MedicalObservation, Consumable
+    Person, Video, Book, Music, Activity, Media, MedicalObservation, Consumable, \
+    Period, Event
 
 class ConsumableInline(admin.TabularInline):
     model = Entry.consumables.through
@@ -127,3 +128,5 @@ class MedicalObservationAdmin(admin.ModelAdmin):
     pass
 admin.site.register(MedicalObservation, MedicalObservationAdmin)
 
+admin.site.register(Event)
+admin.site.register(Period)

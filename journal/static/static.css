@@ -1,0 +1,87 @@
+body, html, form {
+    margin: 0px 0px 0px 0px;
+    padding: 5px;
+    font-family: "Lucida grande", Verdana;
+}
+#footer {
+        height: 76px;
+        font-size: 10px;
+}
+#footer-content {
+        padding: 30px 0px 0px 0px;
+}
+.footer-right {
+        position: absolute;
+        right: 2%;
+        width: 30%;
+        text-align: right;
+}
+.footer-left {
+        position: absolute;
+        left: 2%;
+        width: 30%;
+        text-align: left;
+}
+.footer-mid {
+        text-align: center;
+    padding: 0 10px 10px;
+}
+
+.print-only {
+        display: none;
+}
+.hidden {
+        display: none;
+}
+.showhide {
+        display: none;
+}
+.shtrigger {
+        cursor: pointer;
+}
+#messagebox {
+  border: 2px solid green;
+  font-weight: bold;
+  width: 50%;
+  padding: 1em;
+  margin-left: 25%;
+}
+.boxed {
+        margin: 10px 0px 10px 0px;
+        padding: 5px 5px 5px 5px;
+        border: 1px solid #AEAEAE;
+        float: left;
+}
+.error {
+        color: red;
+        border: 2px solid red;
+        padding: 2px;
+}
+.small {
+        font-size: smaller;
+}
+#loading {
+    display: none;
+    z-index: 100;
+    position: fixed;
+    left: 30%;
+    top: 15%;
+    height: 4em;
+    line-height: 4em;
+    width: 40%;
+    margin-top: 2.5em;
+    border-top: 3px solid #DDDDDD;
+    border-right: 3px solid #DDDDDD;
+    border-bottom: 3px solid #DDDDDD;
+    border-left: 3px solid #DDDDDD;
+    background-color: #5979b4;
+    background-image: url('images/loading.gif');
+    background-repeat: no-repeat;
+    background-position: 35% center;
+    color: #FFFFFF;
+    font-weight: bold;
+    text-align: center;
+}
+#dialog {
+  display: none;
+}

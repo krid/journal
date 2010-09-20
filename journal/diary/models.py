@@ -76,8 +76,8 @@ class Entry(SummaryAndNotes, Timestamped):
     def __str__(self):
         return str(unicode(self))
     def __unicode__(self):
-        return '{summary} - {created}'.format(summary=self.summary,
-                                              created=self.created.strftime('%Y-%m-%d %H:%M'))
+        return '{summary} - {date}'.format(summary=self.summary,
+                                              date=self.date.strftime('%Y-%m-%d'))
 
     MOODS = (
        ('very-happy', 'Very Happy'),
@@ -103,6 +103,13 @@ class Entry(SummaryAndNotes, Timestamped):
     media = models.ManyToManyField('Media')
 
     consumables = models.ManyToManyField('Consumable')
+
+    def as_timeline_dict(self):
+        return dict(start=self.date.strftime('%Y-%m-%d'),
+                    durationEvent=False,
+                    title=self.summary,
+                    description="{0}\nMood: {1}".format(self.notes, self.mood),
+                    )
 
 
 class Person(SummaryAndNotes, Timestamped):
@@ -131,6 +138,13 @@ class Person(SummaryAndNotes, Timestamped):
     relation = models.CharField(max_length=20, choices=RELATIONS)
 
     met = models.DateField(db_index=True)
+
+    def as_timeline_dict(self):
+        return dict(start=self.met.strftime('%Y-%m-%d'),
+                    durationEvent=False,
+                    title='Met {0}'.format(self.name),
+                    description="{0}\n{1}".format(self.summary, self.notes),
+                    )
 
 
 class Activity(Rateable, SummaryAndNotes, Timestamped):
@@ -167,6 +181,14 @@ class Activity(Rateable, SummaryAndNotes, Timestamped):
         self.activity_type = self.__class__.__name__
         super(Activity, self).save(*args, **kwargs)
 
+    def as_timeline_dict(self):
+        return dict(start=self.entry.date.strftime('%Y-%m-%d'),
+                    durationEvent=False,
+                    title='{type}: {summary}'.format(type=self.activity_type,
+                                                     summary=self.summary),
+                    description=self.notes,
+                    )
+
 
 class BikeRide(Activity):
     """ A bicycle ride. """
@@ -189,7 +211,7 @@ class BikeRide(Activity):
 class SocialEvent(Activity):
     """ Visit, meeting, gathering or other interaction with people. """
 
-    company = models.ManyToManyField(Person)
+    company = models.ManyToManyField(Person, blank=True)
 
 
 class DiningOut(Activity):
@@ -205,9 +227,9 @@ class DiningOut(Activity):
 
     link = models.URLField(blank=True)
 
-    company = models.ManyToManyField(Person)
+    company = models.ManyToManyField(Person, blank=True)
 
-    consumables = models.ManyToManyField('Consumable')
+    consumables = models.ManyToManyField('Consumable', blank=True)
 
 
 class Consumable(SummaryAndNotes, Rateable, Timestamped):
@@ -233,7 +255,7 @@ class Consumable(SummaryAndNotes, Rateable, Timestamped):
 
     link = models.URLField(blank=True)
 
-    referred_by = models.ForeignKey(Person, blank=True)
+    referred_by = models.ForeignKey(Person, blank=True, null=True)
 
     consumable_type = models.CharField(max_length=10, choices=CONSUMABLE_TYPES)
 
@@ -371,3 +393,84 @@ class MedicalObservation(SummaryAndNotes, Timestamped):
                                            date=self.entry.date.strftime('%Y-%m-%d'))
 
     entry = models.ForeignKey(Entry)
+
+
+class DateWithOptionalTimeMixin(object):
+    """ Provides a method to emit date or date + time depending on the fields
+    populated.
+    """
+
+    def get_date_time_string(self, field=None):
+        # If no field given do "date" and "time", otherwise "<field>_date"...
+        field_name = field and '{0}_'.format(field) or ''
+        timeval = getattr(self, '{0}time'.format(field_name))
+        dateval = getattr(self, '{0}date'.format(field_name))
+        retval = dateval and dateval.strftime('%Y-%m-%d') or ''
+        if timeval:
+            retval = '{0}{1}{2}'.format(retval, retval and ' ' or '',
+                                        timeval.strftime('%H:%M+%z'))
+        return retval
+
+
+class Event(SummaryAndNotes, Timestamped, DateWithOptionalTimeMixin):
+    """ A significant life event.
+    
+    TODO Might be nice to have an optional type, but concert is the only
+    type I can think of right now.
+    """
+
+    def __str__(self):
+        return str(unicode(self))
+    def __unicode__(self):
+        return '{summary}: {date}'.format(summary=self.summary,
+            date=self.date.strftime('%Y-%m-%d'))
+
+    date = models.DateField(blank=False,
+                            db_index=True)
+
+    time = models.TimeField(blank=True,
+                            null=True,
+                            db_index=False)
+
+    def as_timeline_dict(self):
+        return dict(start=self.get_date_time_string(),
+                    durationEvent=False,
+                    title=self.summary,
+                    caption=self.summary,
+                    description=self.notes,
+                    )
+
+
+class Period(SummaryAndNotes, Timestamped, DateWithOptionalTimeMixin):
+    """ A period of time. """
+
+    def __str__(self):
+        return str(unicode(self))
+    def __unicode__(self):
+        return '{summary}: {start} -> {end}'.format(summary=self.summary,
+            start=self.start_date.strftime('%Y-%m-%d'),
+            end=self.end_date.strftime('%Y-%m-%d'))
+
+    start_date = models.DateField(blank=False, db_index=True)
+    start_time = models.TimeField(null=True, blank=True)
+
+    latest_start_date = models.DateField(null=True, blank=True)
+    latest_start_time = models.TimeField(null=True, blank=True)
+
+    earliest_end_date = models.DateField(null=True, blank=True)
+    earliest_end_time = models.TimeField(null=True, blank=True)
+
+    end_date = models.DateField(blank=False, db_index=True)
+    end_time = models.TimeField(null=True, blank=True)
+
+    def as_timeline_dict(self):
+        return dict(start=self.get_date_time_string('start'),
+                    latestStart=self.get_date_time_string('latest_start'),
+                    earliestEnd=self.get_date_time_string('earliest_end'),
+                    end=self.get_date_time_string('end'),
+                    durationEvent=True,
+                    title=self.summary,
+                    caption=self.summary,
+                    description=self.notes,
+                    )
+

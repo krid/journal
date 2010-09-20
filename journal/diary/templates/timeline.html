@@ -1,0 +1,94 @@
+{% extends "base.html" %}
+
+{% block title %}
+Timeline
+{% endblock %}
+
+{% block head %}
+   <script src="{% url static %}/timeline/timeline_ajax/simile-ajax-api.js" type="text/javascript"></script>
+   <script src="{% url static %}/timeline/timeline_js/timeline-api.js?bundle=true" type="text/javascript"></script>
+   <script type="text/javascript">
+ var tl;
+ function buildTimeline() {
+   var eventSource = new Timeline.DefaultEventSource();
+   var bands = [
+{% if line_type == 'life' %}
+     Timeline.createBandInfo({
+         eventSource:    eventSource,
+         date:           "may 01 2010 00:00:00 GMT",
+         width:          "70%", 
+         intervalUnit:   Timeline.DateTime.MONTH, 
+         intervalPixels: 75
+     }),
+     Timeline.createBandInfo({
+         overview:       true,
+         eventSource:    eventSource,
+         date:           "may 01 2010 00:00:00 GMT",
+         width:          "20%", 
+         intervalUnit:   Timeline.DateTime.YEAR, 
+         intervalPixels: 200
+     }),
+     Timeline.createBandInfo({
+         overview:       true,
+         eventSource:    eventSource,
+         date:           "may 01 2010 00:00:00 GMT",
+         width:          "10%", 
+         intervalUnit:   Timeline.DateTime.DECADE, 
+         intervalPixels: 150
+     })
+{% else %}
+     Timeline.createBandInfo({
+         eventSource:    eventSource,
+         date:           "{{ today }}",
+         width:          "90%", 
+         intervalUnit:   Timeline.DateTime.DAY, 
+         intervalPixels: 100
+     }),
+     Timeline.createBandInfo({
+         overview:       true,
+         eventSource:    eventSource,
+         date:           "{{ today }}",
+         width:          "10%", 
+         intervalUnit:   Timeline.DateTime.MONTH, 
+         intervalPixels: 100
+     })
+{% endif %}
+   ];
+   bands[1].syncWith = 0;
+   bands[1].highlight = true;
+{% if line_type == 'life' %}
+   bands[2].syncWith = 1;
+   bands[2].highlight = true;
+{% endif %}
+
+// FIXME Loads the json twice
+   tl = Timeline.create(document.getElementById("timeline"), bands);
+   tl.loadJSON("{% url journal.diary.views.timeline_json line_type %}",
+     function(json, url) { eventSource.loadJSON(json, url); });
+ }
+
+ var resizeTimerID = null;
+ function onResize() {
+   if (resizeTimerID == null) {
+    resizeTimerID = window.setTimeout(function() {
+       resizeTimerID = null;
+       tl.layout();
+     }, 500);
+   }
+ }
+
+ 
+</script>
+{% endblock head %}
+
+{% block content %}
+
+<div id="timeline" style="height: 350px; border: 1px solid #aaa"></div>
+
+<script type="text/javascript">
+window.onload=function(){
+  buildTimeline();
+}
+</script>
+{% endblock content%}
+

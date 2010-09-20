@@ -1,3 +1,33 @@
+2010-09-19  Dirk Bergstrom  <krid@otisbean.com>
+
+Add in MIT Simile project Timeline support.  Fix a few bugs.
+
+	* diary/models.py (Entry.__unicode__): Use date instead of created.
+	(*.as_timeline_dict): Render models for inclusion into Timeline.
+	(SocialEvent.company): Make optional.
+	(DiningOut.company, consumables): Make optional.
+	(Consumable.referred_by): Make optional.
+	(DateWithOptionalTimeMixin): Holds a utility method for Event & Period.
+	(Event, Period): Models for LifeLine display.
+
+	* diary/views.py: Views for the timeline page, and a pseudo-view
+	to allow {% url static %} in templates.
+	
+	* diary/admin.py: Simple admin for Event & Period.
+
+	* diary/templates/timeline.html: Timeline support.
+
+	* diary/templates/base.html: A stab at giving the project some L&F.
+	
+	* diary/templates/404 & 505.html: Error pages.
+
+    * static/*: Directory for non-Django content.
+
+    * static/timeline: Timeline code.
+
+	* settings.py: Separate dev & production .ini files.
+	Set up media directory and template loading.
+	
 2010-09-16  Dirk Bergstrom  <krid@otisbean.com>
 
 	* settings.py: Fixed a bug in handling of DEVELOPMENT & DEBUG flags.

@@ -1,2 +1,4 @@
 config.ini
 /config.ini
+/production-config.ini
+/dev-config.ini
