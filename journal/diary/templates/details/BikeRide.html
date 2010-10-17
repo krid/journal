@@ -1,0 +1,16 @@
+{% extends "details/detail-base.html" %}{% load journal_tags %}
+{% block title %}{{ obj.summary }}{% endblock %}
+{% block date %}{{ obj.entry.date }}{% endblock %}
+{% block body %}
+ <div class="row"><span class="label">Distance</span>
+ <span class="value">{{ obj.distance }} miles</span></div>
+ 
+ <div class="row"><span class="label">Average Speed</span>
+ <span class="value">{{ obj.average_speed }} MPH</span></div>
+ 
+ <div class="row"><span class="label">Climbing</span>
+ <span class="value">{{ obj.climbing }} feet</span></div>
+ 
+ <div class="row"><span class="label">Solo?</span>
+ <span class="value">{{ obj.solo|yesno }}</span></div>
+ {% endblock %}

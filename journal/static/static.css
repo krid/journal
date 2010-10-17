@@ -85,3 +85,40 @@ body, html, form {
 #dialog {
   display: none;
 }
+
+.spacer {
+  clear: both;
+  margin: 0;
+  padding: 0;
+  height: .1em;
+}
+.bubble-title {
+  font-weight: bold;
+  font-variant: small-caps;
+}
+.bubble-date {
+  padding: .3em 0 .3em 0;
+}
+.bubble-body {
+  font-size: small;
+}
+.bubble-footer {
+  margin: 1em 0 0 0;
+  font-size: xx-small;
+}
+div.row {
+  clear: both;
+  position: relative;
+  padding-bottom: .1em;
+}
+div.row span.label {
+  font-weight: bold;
+  float: left;
+  width: 40%;
+  padding-right: 10%;
+}
+div.row span.value {
+  float: right;
+  text-align: left;
+  width: 50%;
+}

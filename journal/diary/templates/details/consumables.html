@@ -1,0 +1,9 @@
+{% with obj.consumables.all as consumables %}
+{% if consumables %}
+<div class="row"><span class="label">Consumables</span>
+<span class="value">{% for con in consumables %}
+{{ con.name }}<br />
+{% endfor %}
+</span></div>
+{% endif %}
+{% endwith %}

@@ -1,9 +1,31 @@
 TODO List for Journal
 
-*) Have separate bands for each data type in both lifeline and diary views.
+*) Have separate bands for each data type in the diary view (not so useful
+in the lifeline view).
+Hmm, that won't really work, because a "highlight" band can only sync
+with a single band -- the you wouldn't get the neat "summary" view.  Ahh,
+but you could have multiple highlight bands, one per data type band.
+ - In the lifeline, you could have multiple bands based on tags.  A
+ "relationships" band, a "housing" band, "jobs", "concerts", etc.  Any
+ event/period whose tag doesn't correspond to a user-defined band is
+ rendered in the "other/misc" band.  Lets people segment however they
+ want.
 
 *) A narrow band at the top that somehow has an on-click to bring up an
 "add an entry/event/period/whatever" dialog.
 
 *) Add per-decade clicky bits on the lifeline page, and per-month and
 next/prev year on diary.  
+
+*) BikeRide mileage should be a float.  Duration should either take time
+in HH:MM, or just be removed.
+
+*) Better rendering of event detail.
+http://code.google.com/p/simile-widgets/wiki/Timeline_CustomEventDetailDisplay
+We fetch bubble detail via AJAX, should we then cache it?  If so, how to
+invalidate cache?
+
+*) Get rid of 'duration' attr on Activity.
+
+alter table diary_period change start_date start_date date null;
+alter table diary_period change end_date end_date date null;

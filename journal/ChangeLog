@@ -1,3 +1,36 @@
+2010-10-04  Dirk Bergstrom  <krid@otisbean.com>
+
+	* diary/templates/timeline.html: Remove onLoad call, add note about
+	mouse interaction with timeline.
+	
+	* diary/templates/base.html: Use 'base' and 'static' url mappings,
+	load jquery library.
+	
+	* diary/templates/details/*.html: Templates for bubble population.
+
+	* diary/models.py *.as_timeline_dict): Remove detail info, since
+	bubbles are now populated via AJAX.
+	(DateWithOptionalTimeMixin): Remove timezone (for now).
+	(Period): Allow empty start and/or end dates.  Better date/time
+	handling in as_timeline_dict.
+	(*Form): Initial support for model forms.
+
+	* diary/views.py (model_details): Render bubble contents.
+	
+	* diary/templatetags/journal_tags.py: Custom tags, for date rendering
+	at the moment.
+	
+	* urls.py: Add mapping for bubble renderers.
+	Add 'base' static mapping, use lambda for both static mappings.
+	Remove DataBrowse code.
+
+	* static/journal.js: Move onload timeline setup to jQuery .ready().
+	Load bubble contents dynamically.
+
+	* static/jquery*: Bring in jQuery & jQuery UI.
+	
+	* static/static.css: Add styling for bubbles.
+
 2010-09-19  Dirk Bergstrom  <krid@otisbean.com>
 
 Add in MIT Simile project Timeline support.  Fix a few bugs.

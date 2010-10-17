@@ -17,15 +17,17 @@
 import json
 import datetime
 
-from django.shortcuts import render_to_response
-from django.http import HttpResponse
+from django.shortcuts import render_to_response, get_object_or_404
+from django.http import HttpResponse, HttpResponseNotFound
 
 from journal.diary.models import *
+
 
 def timeline(request, line_type):
     params = dict(line_type=line_type,
                   today=datetime.datetime.now().strftime('%Y-%m-%d'))
     return render_to_response('timeline.html', params)
+
 
 def timeline_json(request, line_type):
     data = {
@@ -37,13 +39,22 @@ def timeline_json(request, line_type):
     if line_type == 'life':
         model_types = (Event, Period, Person)
     else: # line_type == 'diary'
-        model_types = (Activity, Entry)
+        model_types = (Activity, Entry, MedicalObservation)
     # TODO Need to honor the "private" flag on Entry (and other models?)
     for model_type in model_types:
         data['events'].extend([obj.as_timeline_dict() for obj in model_type.objects.all()])
     return HttpResponse(json.dumps(data), mimetype='application/json')
 
-def static_url(request):
-    """ This is never called, it's just here so we can say {% url static %}
-    in a template. """
-    pass
+
+def model_details(request, model_type, pk):
+    """ Render the template to fill in a bubble on the timeline. """
+    try:
+        # Make sure it's a type we're prepared to render.
+        model_class = getattr(models, model_type)
+        getattr(model_class, 'as_timeline_dict')
+    except AttributeError:
+        return HttpResponseNotFound("Can't render type '{0}'".format(model_type))
+
+    obj = get_object_or_404(model_class, id=pk)
+    return render_to_response('details/{0}.html'.format(model_type),
+                              dict(obj=obj))

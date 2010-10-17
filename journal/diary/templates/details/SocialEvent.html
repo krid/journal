@@ -1,0 +1,11 @@
+{% extends "details/detail-base.html" %}{% load journal_tags %}
+{% block title %}{{ obj.summary }}{% endblock %}
+{% block date %}{{ obj.entry.date }}{% endblock %}
+{% block body %}
+ <div class="row"><span class="label">Company</span>
+ <span class="value">
+ {% for person in obj.company.all %}
+ {{ person.name }}<br />
+ {% endfor %}
+ </span></div>
+{% endblock %}

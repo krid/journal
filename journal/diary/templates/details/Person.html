@@ -1,0 +1,6 @@
+{% extends "details/detail-base.html" %}{% load journal_tags %}
+{% block title %}{{ obj.name }}{% endblock %}
+{% block date %}{{ obj.met }}{% endblock %}
+{% block body %}
+{{ obj.get_relation_display }}
+{% endblock %}

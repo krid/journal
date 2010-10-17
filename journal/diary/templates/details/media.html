@@ -1,0 +1,9 @@
+{% with obj.media.all as media %}
+{% if media %}
+<div class="row"><span class="label">Media</span>
+<span class="value">{% for thing in media %}
+{{ thing.media_type }}: {{ thing.title }}<br />
+{% endfor %}
+</span></div>
+{% endif %}
+{% endwith %}

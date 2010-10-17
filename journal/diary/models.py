@@ -16,6 +16,12 @@
 
 from django.db import models
 from django.contrib.auth.models import User
+from django.forms.models import ModelForm
+
+# The Timeline package doesn't like open-ended date ranges, so we bookend...
+YEAR_ZERO = '1900-01-01'
+YEAR_INFINITY = '2100-01-01'
+INDETERMINATE_TIME = "~"
 
 class Timestamped(models.Model):
     """ Abstract mixin for models that have created & modified times. """
@@ -108,7 +114,8 @@ class Entry(SummaryAndNotes, Timestamped):
         return dict(start=self.date.strftime('%Y-%m-%d'),
                     durationEvent=False,
                     title=self.summary,
-                    description="{0}\nMood: {1}".format(self.notes, self.mood),
+                    classname=self.__class__.__name__,
+                    id=str(self.pk),
                     )
 
 
@@ -142,8 +149,9 @@ class Person(SummaryAndNotes, Timestamped):
     def as_timeline_dict(self):
         return dict(start=self.met.strftime('%Y-%m-%d'),
                     durationEvent=False,
-                    title='Met {0}'.format(self.name),
-                    description="{0}\n{1}".format(self.summary, self.notes),
+                    title=self.name,
+                    classname=self.__class__.__name__,
+                    id=str(self.pk),
                     )
 
 
@@ -186,7 +194,8 @@ class Activity(Rateable, SummaryAndNotes, Timestamped):
                     durationEvent=False,
                     title='{type}: {summary}'.format(type=self.activity_type,
                                                      summary=self.summary),
-                    description=self.notes,
+                    classname=self.activity_type,
+                    id=str(self.pk),
                     )
 
 
@@ -383,6 +392,7 @@ class Video(Media):
                                   choices=VIDEO_TYPES,
                                   blank=False)
 
+
 class MedicalObservation(SummaryAndNotes, Timestamped):
     """ What's going on with your body or mind. """
 
@@ -393,6 +403,14 @@ class MedicalObservation(SummaryAndNotes, Timestamped):
                                            date=self.entry.date.strftime('%Y-%m-%d'))
 
     entry = models.ForeignKey(Entry)
+
+    def as_timeline_dict(self):
+        return dict(start=self.entry.date.strftime('%Y-%m-%d'),
+                    durationEvent=False,
+                    title=self.summary,
+                    classname=self.__class__.__name__,
+                    id=str(self.pk),
+                    )
 
 
 class DateWithOptionalTimeMixin(object):
@@ -408,22 +426,23 @@ class DateWithOptionalTimeMixin(object):
         retval = dateval and dateval.strftime('%Y-%m-%d') or ''
         if timeval:
             retval = '{0}{1}{2}'.format(retval, retval and ' ' or '',
-                                        timeval.strftime('%H:%M+%z'))
+                                        timeval.strftime('%H:%M'))
+            # FIXME Think about timezones...
         return retval
 
 
 class Event(SummaryAndNotes, Timestamped, DateWithOptionalTimeMixin):
     """ A significant life event.
     
-    TODO Might be nice to have an optional type, but concert is the only
-    type I can think of right now.
+    TODO Might be nice to have an optional type attribute, but concert is the
+    only type I can think of right now.
     """
 
     def __str__(self):
         return str(unicode(self))
     def __unicode__(self):
         return '{summary}: {date}'.format(summary=self.summary,
-            date=self.date.strftime('%Y-%m-%d'))
+            date=self.get_date_time_string())
 
     date = models.DateField(blank=False,
                             db_index=True)
@@ -433,11 +452,11 @@ class Event(SummaryAndNotes, Timestamped, DateWithOptionalTimeMixin):
                             db_index=False)
 
     def as_timeline_dict(self):
-        return dict(start=self.get_date_time_string(),
+        return dict(id=str(self.pk),
+                    start=self.get_date_time_string(),
                     durationEvent=False,
                     title=self.summary,
-                    caption=self.summary,
-                    description=self.notes,
+                    classname='Event',
                     )
 
 
@@ -448,10 +467,10 @@ class Period(SummaryAndNotes, Timestamped, DateWithOptionalTimeMixin):
         return str(unicode(self))
     def __unicode__(self):
         return '{summary}: {start} -> {end}'.format(summary=self.summary,
-            start=self.start_date.strftime('%Y-%m-%d'),
-            end=self.end_date.strftime('%Y-%m-%d'))
+            start=self.get_date_time_string('start'),
+            end=self.get_date_time_string('end'))
 
-    start_date = models.DateField(blank=False, db_index=True)
+    start_date = models.DateField(blank=True, null=True, db_index=True)
     start_time = models.TimeField(null=True, blank=True)
 
     latest_start_date = models.DateField(null=True, blank=True)
@@ -460,17 +479,93 @@ class Period(SummaryAndNotes, Timestamped, DateWithOptionalTimeMixin):
     earliest_end_date = models.DateField(null=True, blank=True)
     earliest_end_time = models.TimeField(null=True, blank=True)
 
-    end_date = models.DateField(blank=False, db_index=True)
+    end_date = models.DateField(blank=True, null=True, db_index=True)
     end_time = models.TimeField(null=True, blank=True)
 
     def as_timeline_dict(self):
-        return dict(start=self.get_date_time_string('start'),
-                    latestStart=self.get_date_time_string('latest_start'),
-                    earliestEnd=self.get_date_time_string('earliest_end'),
-                    end=self.get_date_time_string('end'),
-                    durationEvent=True,
-                    title=self.summary,
-                    caption=self.summary,
-                    description=self.notes,
-                    )
+        caption = u"{0}: {1} \u21D2 {2}".format(self.summary,
+                                     self.start_date or INDETERMINATE_TIME,
+                                     self.end_date or INDETERMINATE_TIME)
+        retval = dict(id=str(self.pk),
+                      start=self.get_date_time_string('start') or YEAR_ZERO,
+                      end=self.get_date_time_string('end') or YEAR_INFINITY,
+                      durationEvent=True,
+                      title=self.summary,
+                      caption=caption, # TODO replace with tooltip?
+                      classname=self.__class__.__name__,
+                      )
+        if self.latest_start_date or self.latest_start_time:
+            retval['latestStart'] = self.get_date_time_string('latest_start')
+        if self.earliest_end_date or self.earliest_end_time:
+            retval['earliestEnd'] = self.get_date_time_string('earliest_end')
+        return retval
 
+
+class EntryForm(ModelForm):
+    class Meta:
+        model = Entry
+
+
+class PersonForm(ModelForm):
+    class Meta:
+        model = Person
+
+
+class ActivityForm(ModelForm):
+    class Meta:
+        model = Activity
+
+
+class BikeRideForm(ModelForm):
+    class Meta:
+        model = BikeRide
+
+
+class SocialEventForm(ModelForm):
+    class Meta:
+        model = SocialEvent
+
+
+class DiningOutForm(ModelForm):
+    class Meta:
+        model = DiningOut
+
+
+class ConsumableForm(ModelForm):
+    class Meta:
+        model = Consumable
+
+
+class MediaForm(ModelForm):
+    class Meta:
+        model = Media
+
+
+class BookForm(ModelForm):
+    class Meta:
+        model = Book
+
+
+class MusicForm(ModelForm):
+    class Meta:
+        model = Music
+
+
+class VideoForm(ModelForm):
+    class Meta:
+        model = Video
+
+
+class MedicalObservationForm(ModelForm):
+    class Meta:
+        model = MedicalObservation
+
+
+class EventForm(ModelForm):
+    class Meta:
+        model = Event
+
+
+class PeriodForm(ModelForm):
+    class Meta:
+        model = Period

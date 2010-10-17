@@ -16,20 +16,11 @@
 
 from django.conf.urls.defaults import *
 from django.contrib import admin
-from django.contrib import databrowse
 from django.conf import settings
 
-from journal.diary.models import BikeRide, SocialEvent, DiningOut, Entry, \
-    Person, Video, Book, Music, Activity, Media
 from journal.diary import views
 
 admin.autodiscover()
-
-databrowse.site.register(Entry)
-databrowse.site.register(Activity)
-databrowse.site.register(Media)
-databrowse.site.register(BikeRide)
-#databrowse.site.register()
 
 urlpatterns = patterns('',
     # Example:
@@ -38,14 +29,17 @@ urlpatterns = patterns('',
     (r'^timeline/(?P<line_type>[^/]+)/', views.timeline),
     (r'^timeline_json/(?P<line_type>[^/]+)/', views.timeline_json),
 
-    (r'^browse/(.*)', databrowse.site.root),
+    # Render details for an info bubble
+    (r'^details/(?P<model_type>[^/]+)/(?P<pk>[0-9]+)/', views.model_details),
+
     (r'^admin/', include(admin.site.urls)),
     (r'^admin/doc/', include('django.contrib.admindocs.urls')),
 
-    # This is here so we can have a url mapping in templates 
-    url(r'^static$', views.static_url, name='static'),
+    # These are here so we can have url mapping in templates.  Don't call them...
+    url(r'^static$', lambda request: 1, name='static'),
+    url(r'^$', lambda request: 1, name='base'),
 )
-print settings.DEVELOPMENT
+
 if settings.DEVELOPMENT:
     urlpatterns += patterns('',
         (r'^static/(?P<path>.*)$', 'django.views.static.serve',

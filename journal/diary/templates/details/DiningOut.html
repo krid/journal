@@ -1,0 +1,23 @@
+{% extends "details/detail-base.html" %}{% load journal_tags %}
+{% block title %}{{ obj.summary }}{% endblock %}
+{% block date %}{{ obj.entry.date }}{% endblock %}
+{% block body %}
+ {% if obj.restaurant %}
+ <div class="row"><span class="label">Restaurant</span>
+ <span class="value">{% if obj.link %}<a href="{{ obj.link }}">{% endif %}{{ obj.restaurant }}{% if obj.link %}</a>{% endif %}</span></div>
+ {% endif %}
+ 
+{% include "details/consumables.html" %}
+ 
+{% with obj.company.all as company %}
+{% if company %}
+ <div class="row"><span class="label">Company</span>
+ <span class="value">
+ {% for person in company %}
+ {{ person.name }}<br />
+ {% endfor %}
+ </span></div>
+{% endif %}
+{% endwith %}
+ 
+{% endblock %}

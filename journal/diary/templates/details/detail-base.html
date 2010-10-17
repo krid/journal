@@ -1,0 +1,21 @@
+<div class="bubble-title">{% block title %}{% endblock %}</div>
+<div class="bubble-date">{% block date %}{% endblock %}</div>
+<div class="bubble-body">
+{% if obj.reality %}
+{% if obj.expectation %}
+<div class="row"><span class="label">Expectation:</span><span class="value">{{ obj.expectation }}</span></div>
+{% endif %}
+<div class="row"><span class="label">Rating:</span><span class="value">{{ obj.reality }}</span></div>
+{% endif %}
+{% block body %}
+{% endblock %}
+<div class="spacer"> &nbsp;</div>
+<div class="bubble-text">
+{{ obj.notes|linebreaks }}
+</div>
+</div>
+<div class="bubble-footer">
+{% block footer %}{% endblock %}
+<div class="row"><span class="label">Created:</span><span class="value">{{ obj.created }}</span></div>
+<div class="row"><span class="label">Last Modified:</span><span class="value">{{ obj.modified }}</span></div>
+</div>

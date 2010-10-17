@@ -1,0 +1,11 @@
+{% extends "details/detail-base.html" %}{% load journal_tags %}
+{% block title %}{{ obj.summary }}{% endblock %}
+{% block date %}{{ obj.date }}{% endblock %}
+{% block body %}
+ <div class="row"><span class="label">Mood</span>
+ <span class="value">{{ obj.mood }}</span></div>
+
+{% include "details/consumables.html" %}
+{% include "details/media.html" %}
+
+{% endblock %}

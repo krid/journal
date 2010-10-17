@@ -1,0 +1,3 @@
+{% extends "details/detail-base.html" %}{% load journal_tags %}
+{% block title %}{{ obj.summary }}{% endblock %}
+{% block date %}{% period_dates obj %}{% endblock %}
