@@ -18,9 +18,10 @@ import json
 import datetime
 
 from django.shortcuts import render_to_response, get_object_or_404
-from django.http import HttpResponse, HttpResponseNotFound
+from django.http import HttpResponse, HttpResponseBadRequest
 
 from journal.diary.models import *
+from journal.diary import models as diary_models
 
 
 def timeline(request, line_type):
@@ -50,10 +51,10 @@ def model_details(request, model_type, pk):
     """ Render the template to fill in a bubble on the timeline. """
     try:
         # Make sure it's a type we're prepared to render.
-        model_class = getattr(models, model_type)
+        model_class = getattr(diary_models, model_type)
         getattr(model_class, 'as_timeline_dict')
     except AttributeError:
-        return HttpResponseNotFound("Can't render type '{0}'".format(model_type))
+        return HttpResponseBadRequest("Can't render type '{0}'".format(model_type))
 
     obj = get_object_or_404(model_class, id=pk)
     return render_to_response('details/{0}.html'.format(model_type),

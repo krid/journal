@@ -175,8 +175,9 @@ class Activity(Rateable, SummaryAndNotes, Timestamped):
     def __unicode__(self):
         return '{type}: {summary} - {date}'.format(type=self.activity_type,
                                                    summary=self.summary,
-                                                   date=self.entry.date.strftime('%Y-%m-%d'))
-    entry = models.ForeignKey(Entry)
+                                                   date=self.date.strftime('%Y-%m-%d'))
+    date = models.DateField(blank=False,
+                            db_index=True)
 
     duration = models.PositiveIntegerField("duration in hours",
                                            blank=True, null=True)
@@ -190,7 +191,7 @@ class Activity(Rateable, SummaryAndNotes, Timestamped):
         super(Activity, self).save(*args, **kwargs)
 
     def as_timeline_dict(self):
-        return dict(start=self.entry.date.strftime('%Y-%m-%d'),
+        return dict(start=self.date.strftime('%Y-%m-%d'),
                     durationEvent=False,
                     title='{type}: {summary}'.format(type=self.activity_type,
                                                      summary=self.summary),
@@ -400,12 +401,13 @@ class MedicalObservation(SummaryAndNotes, Timestamped):
         return str(unicode(self))
     def __unicode__(self):
         return '{summary} - {date}'.format(summary=self.summary,
-                                           date=self.entry.date.strftime('%Y-%m-%d'))
+                                           date=self.date.strftime('%Y-%m-%d'))
 
-    entry = models.ForeignKey(Entry)
+    date = models.DateField(blank=False,
+                            db_index=True)
 
     def as_timeline_dict(self):
-        return dict(start=self.entry.date.strftime('%Y-%m-%d'),
+        return dict(start=self.date.strftime('%Y-%m-%d'),
                     durationEvent=False,
                     title=self.summary,
                     classname=self.__class__.__name__,

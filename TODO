@@ -27,5 +27,18 @@ invalidate cache?
 
 *) Get rid of 'duration' attr on Activity.
 
+
+SQL FOR SCHEMA & DATA CHANGES
+
 alter table diary_period change start_date start_date date null;
 alter table diary_period change end_date end_date date null;
+
+alter table diary_activity add `date` date not null;
+update diary_activity a join diary_entry e on e.entry_id = a.entry_id
+set a.date=e.date;
+alter table diary_activity drop column entry_id;
+
+alter table diary_medical_observation add `date` date not null;
+update diary_medical_observation mo join diary_entry e on e.entry_id = mo.entry_id
+set mo.date=e.date;
+alter table diary_medical_observation drop column entry_id;

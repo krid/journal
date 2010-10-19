@@ -23,7 +23,14 @@
 </noscript>
 <div id="loading">thinking...</div>
 {% if message %}<div id="messagebox">{{ message }}</div>{% endif %}
-</span>
+<div id="header">
+<h1>Timeline</h1>
+<ul id="nav">
+<li><a href="{% url timeline 'life' %}">Life</a></li>
+<li><a href="{% url timeline 'diary' %}">Diary</a></li>
+<li><a href="../../admin">Admin</a></li> <!-- FIXME -->
+</ul>
+</div>
 {% block content %}
 There's nothing on this page.
 {% endblock content %}

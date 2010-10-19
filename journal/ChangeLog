@@ -1,3 +1,22 @@
+2010-10-18  Dirk Bergstrom  <krid@otisbean.com>
+
+	* diary/models.py (Activity, MedicalObservation): Break the relation
+	to Entry, replacing it with a Date field.  Allows for independent
+	tracking of data types.
+	
+	* diary/views.py (model_details): Use a better error type.
+	Clean up imports.
+	
+	* diary/templates/details/*.html: Switch refs from 'obj.entry.date'
+	to 'obj.date'.
+
+	* urls.py: Convert tuple-style mappings to url() mappings.
+	Add names for use in site nav urls.
+	
+	* diary/templates/base.html: Add header and nav.
+
+	* static/static.css: Add simple header & nav styles.
+
 2010-10-04  Dirk Bergstrom  <krid@otisbean.com>
 
 	* diary/templates/timeline.html: Remove onLoad call, add note about

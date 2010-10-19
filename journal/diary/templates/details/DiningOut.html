@@ -1,6 +1,6 @@
 {% extends "details/detail-base.html" %}{% load journal_tags %}
 {% block title %}{{ obj.summary }}{% endblock %}
-{% block date %}{{ obj.entry.date }}{% endblock %}
+{% block date %}{{ obj.date }}{% endblock %}
 {% block body %}
  {% if obj.restaurant %}
  <div class="row"><span class="label">Restaurant</span>

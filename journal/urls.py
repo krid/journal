@@ -26,14 +26,15 @@ urlpatterns = patterns('',
     # Example:
     # (r'^journal/', include('journal.foo.urls')),
 
-    (r'^timeline/(?P<line_type>[^/]+)/', views.timeline),
-    (r'^timeline_json/(?P<line_type>[^/]+)/', views.timeline_json),
+    url(r'^timeline/(?P<line_type>[^/]+)/', views.timeline, name='timeline'),
+    url(r'^timeline_json/(?P<line_type>[^/]+)/', views.timeline_json,
+     name='timeline_json'),
 
     # Render details for an info bubble
-    (r'^details/(?P<model_type>[^/]+)/(?P<pk>[0-9]+)/', views.model_details),
+    url(r'^details/(?P<model_type>[^/]+)/(?P<pk>[0-9]+)/', views.model_details),
 
-    (r'^admin/', include(admin.site.urls)),
-    (r'^admin/doc/', include('django.contrib.admindocs.urls')),
+    url(r'^admin/', include(admin.site.urls)),
+    url(r'^admin/doc/', include('django.contrib.admindocs.urls')),
 
     # These are here so we can have url mapping in templates.  Don't call them...
     url(r'^static$', lambda request: 1, name='static'),
@@ -42,7 +43,7 @@ urlpatterns = patterns('',
 
 if settings.DEVELOPMENT:
     urlpatterns += patterns('',
-        (r'^static/(?P<path>.*)$', 'django.views.static.serve',
+        url(r'^static/(?P<path>.*)$', 'django.views.static.serve',
          {'document_root': settings.MEDIA_ROOT, 'show_indexes': True}),
     )
 
